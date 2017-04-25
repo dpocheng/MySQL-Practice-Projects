@@ -1,0 +1,194 @@
+-- The file name should be HW4_groupID.txt (e.g., HW4_01.txt).
+-- Please put your group information here. 
+-- GroupID: 76
+-- SID1: 40598243, NAME: Cyrus Tabatabai-Yazdi
+-- SID2: 74157306, NAME: Pok On Cheng
+-- SID3: 73168728, NAME: Elliot Yan
+--
+-- Paste your results in the below.
+-- Do not modify anything after copying the results from MySQLWorkBench into the file.
+--
+Execute:
+> SELECT IATA_code, COUNT(*) AS number_of_lounges
+FROM airport INNER JOIN lounge ON airport.IATA_code = lounge.airport_IATA_code
+GROUP BY IATA_code/* Q1 */
+
++ -------------- + ---------------------- +
+| IATA_code      | number_of_lounges      |
++ -------------- + ---------------------- +
+| JFK            | 2                      |
+| LAX            | 1                      |
+| SAT            | 2                      |
+| SFO            | 3                      |
+| SJC            | 1                      |
+| SNA            | 2                      |
++ -------------- + ---------------------- +
+6 rows
+
+Execute:
+> SELECT flight_number, TIMESTAMPDIFF(second, actual_departure_datetime, actual_arrival_datetime) AS actual_duration
+FROM flight
+WHERE flight.actual_departure_datetime = (SELECT MAX(f2.actual_departure_datetime) FROM flight f2)/* Q2 */
+
++ ------------------ + -------------------- +
+| flight_number      | actual_duration      |
++ ------------------ + -------------------- +
+| UC2084             | 8100                 |
++ ------------------ + -------------------- +
+1 rows
+
+Execute:
+> SELECT MAX(ABS(TIMESTAMPDIFF(second,actual_departure_datetime,actual_arrival_datetime) - TIMESTAMPDIFF(second,projected_departure_datetime,projected_arrival_datetime))) AS maximum_absolute_difference
+FROM flight/* Q3 */
+
++ -------------------------------- +
+| maximum_absolute_difference      |
++ -------------------------------- +
+| 3600                             |
++ -------------------------------- +
+1 rows
+
+Execute:
+> SELECT flight_number, MAX(ABS(TIMESTAMPDIFF(second,actual_departure_datetime,actual_arrival_datetime) - TIMESTAMPDIFF(second,projected_departure_datetime,projected_arrival_datetime))) AS maximum_absolute_difference, MIN(ABS(TIMESTAMPDIFF(second,actual_departure_datetime,actual_arrival_datetime) - TIMESTAMPDIFF(second,projected_departure_datetime,projected_arrival_datetime))) AS minimum_absolute_difference
+FROM flight
+GROUP BY flight_number/* Q4 */
+
++ ------------------ + -------------------------------- + -------------------------------- +
+| flight_number      | maximum_absolute_difference      | minimum_absolute_difference      |
++ ------------------ + -------------------------------- + -------------------------------- +
+| N124               | 600                              | 0                                |
+| U987               | 120                              | 0                                |
+| UC2084             | 3600                             | 0                                |
+| UC6024             | 900                              | 300                              |
+| UC725              | 0                                | 0                                |
++ ------------------ + -------------------------------- + -------------------------------- +
+5 rows
+
+Execute:
+> SELECT pid, Temp.count
+FROM
+(SELECT pid, COUNT(*) AS count
+FROM Pilot_Operates_Flight P1 INNER JOIN Flight F1 ON P1.flight_number = F1.flight_number
+GROUP BY pid) AS Temp
+WHERE Temp.count = (SELECT MAX(Temp2.c) FROM (SELECT P2.pid, COUNT(*) AS c FROM (Pilot_Operates_Flight P2 INNER JOIN Flight F2 ON P2.flight_number = F2.flight_number)
+GROUP BY pid) AS Temp2)/* Q5 */
+
++ -------- + ---------- +
+| pid      | count      |
++ -------- + ---------- +
+| 990201   | 111        |
++ -------- + ---------- +
+1 rows
+
+Execute:
+> SELECT L.lid,AVG(D.price)
+FROM Lounge L INNER JOIN Dish D ON L.lid = D.lid
+GROUP BY L.lid
+HAVING AVG(D.price) > (SELECT AVG(D2.price)
+                       FROM Dish D2)/* Q6 */
+
++ -------- + ----------------- +
+| lid      | AVG(D.price)      |
++ -------- + ----------------- +
+| 212      | 26.096000         |
+| 213      | 21.372500         |
+| 315      | 36.014000         |
++ -------- + ----------------- +
+3 rows
+
+Execute:
+> SELECT O.oid, name, quantity
+FROM DishOrder O INNER JOIN DishOrder_Contains_Dish C ON O.oid = C.oid
+WHERE 2 <= (SELECT COUNT(*)
+			FROM DishOrder O1 INNER JOIN DishOrder_Contains_Dish C1 ON O1.oid = C1.oid
+            WHERE O.oid = O1.oid)/* Q7 */
+
++ -------- + --------- + ------------- +
+| oid      | name      | quantity      |
++ -------- + --------- + ------------- +
+| 4        | fresh lemonade | 2             |
+| 4        | sandwich  | 2             |
+| 4        | the thai wrap | 2             |
+| 12       | salmon    | 20            |
+| 12       | skewered shrimp | 20            |
+| 12       | swordfish | 20            |
+| 5        | galbitang | 4             |
+| 5        | samgyetang | 3             |
+| 3        | salmon    | 3             |
+| 3        | swordfish | 5             |
+| 8        | hummus    | 10            |
+| 8        | the burger combo | 5             |
+| 8        | the karma burger | 3             |
++ -------- + --------- + ------------- +
+13 rows
+
+Execute:
+> SELECT C.cid, SUM(purchased_price * quantity)
+FROM Customer C LEFT OUTER JOIN Customer_Reserves_Flight R ON C.cid = R.cid
+GROUP BY C.cid
+ORDER BY C.cid/* Q8 */
+
++ -------- + ------------------------------------ +
+| cid      | SUM(purchased_price * quantity)      |
++ -------- + ------------------------------------ +
+| 1        | 4448.10                              |
+| 2        | 137.22                               |
+| 3        | 500.00                               |
+| 4        | 2000.00                              |
+| 5        | 1200.00                              |
+| 6        | 125.00                               |
+| 7        | 150.00                               |
+| 8        | 25000.00                             |
+| 9        | 33600.00                             |
+| 10       | 580.00                               |
+| 11       |                                      |
+| 12       |                                      |
+| 13       | 11284.00                             |
+| 14       | 473.00                               |
+| 15       | 47300.00                             |
+| 16       | 28240.00                             |
+| 17       | 232149.12                            |
+| 18       | 7861.70                              |
+| 19       | 7861.70                              |
+| 20       | 420.98                               |
++ -------- + ------------------------------------ +
+20 rows
+
+Execute:
+> SELECT A.IATA_Code, COUNT(*) AS num_orders
+FROM Airport A INNER JOIN Lounge L INNER JOIN DishOrder_Contains_Dish C ON A.IATA_code = L.airport_IATA_code AND L.lid = C.lid
+GROUP BY A.IATA_Code/* Q9 */
+
++ -------------- + --------------- +
+| IATA_Code      | num_orders      |
++ -------------- + --------------- +
+| JFK            | 7               |
+| LAX            | 3               |
+| SAT            | 8               |
+| SNA            | 4               |
++ -------------- + --------------- +
+4 rows
+
+Execute:
+> SELECT L.lid, L.airport_IATA_code, COUNT(*) AS number_of_dishes, MIN(D.price) AS minimum_price, MAX(D.price) AS maximum_price, AVG(D.price) AS average_price
+FROM Lounge L LEFT OUTER JOIN Dish D ON L.lid = D.lid
+GROUP BY L.lid 
+ORDER BY L.lid/* Q10 */
+
++ -------- + ---------------------- + --------------------- + ------------------ + ------------------ + ------------------ +
+| lid      | airport_IATA_code      | number_of_dishes      | minimum_price      | maximum_price      | average_price      |
++ -------- + ---------------------- + --------------------- + ------------------ + ------------------ + ------------------ +
+| 112      | SNA                    | 4                     | 6.50               | 19.00              | 10.237500          |
+| 113      | SNA                    | 4                     | 10.50              | 31.50              | 16.250000          |
+| 212      | SAT                    | 5                     | 10.99              | 49.00              | 26.096000          |
+| 213      | SAT                    | 4                     | 12.00              | 35.50              | 21.372500          |
+| 314      | JFK                    | 4                     | 11.99              | 29.99              | 17.742500          |
+| 315      | JFK                    | 5                     | 13.99              | 97.10              | 36.014000          |
+| 409      | LAX                    | 4                     | 11.00              | 16.99              | 13.495000          |
+| 501      | SFO                    | 1                     | 19.12              | 19.12              | 19.120000          |
+| 502      | SFO                    | 1                     | 17.12              | 17.12              | 17.120000          |
+| 503      | SFO                    | 1                     | 13.12              | 13.12              | 13.120000          |
+| 601      | SJC                    | 1                     |                    |                    |                    |
++ -------- + ---------------------- + --------------------- + ------------------ + ------------------ + ------------------ +
+11 rows
+

@@ -1,0 +1,42 @@
+-- This file demonstrates an example that how your file should look like.
+-- The file name should be HW4_groupID.txt (e.g., HW4_01.txt).
+-- Please put your group information here. 
+-- GroupID: XX
+-- SID1: XXXXX, NAME: YYYYYY
+-- SID2: WWW, NAME: ZZZZZZ
+-- SID3: MMMMM, NAME: NNNNNN
+--
+-- Delete the following example queries and paste your results in the below.
+-- Do not modify anything after copying the results from MySQLWorkBench into the file.
+--
+Execute:
+> SELECT cid FROM Customer LIMIT 1 /* Q1 */
+
++ -------- +
+| cid      |
++ -------- +
+| 1        |
+| NULL     |
++ -------- +
+2 rows
+
+Execute:
+> SELECT "Q2: skipped"
+
++ ---------------- +
+| Q2: skipped      |
++ ---------------- +
+| Q2: skipped      |
++ ---------------- +
+1 rows
+
+Execute:
+> SELECT lid FROM Lounge LIMIT 1 /* Q3 */
+
++ -------- +
+| lid      |
++ -------- +
+| 1        |
+| NULL     |
++ -------- +
+2 rows
